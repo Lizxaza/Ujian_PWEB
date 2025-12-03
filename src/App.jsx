@@ -1,227 +1,217 @@
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "books_data";
+const STORAGE_KEY = "parking_data";
 
 const emptyForm = {
   id: null,
-  title: "",
-  author: "",
-  year: "",
-  category: "",
+  plate: "",
+  owner: "",
+  type: "Motor",
+  timeIn: "",
+  timeOut: "",
+  status: "Masuk",
+  duration: "",
+  fee: "",
 };
 
 function App() {
-  const [books, setBooks] = useState([]);
+  const [data, setData] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState("");
 
-  // Ambil data dari localStorage saat pertama kali load
+
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setBooks(JSON.parse(saved));
-    }
+    if (saved) setData(JSON.parse(saved));
   }, []);
 
-  // Simpan ke localStorage setiap kali books berubah
+ 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
-  }, [books]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [data]);
+
+  
+  const calculateParking = (form) => {
+    if (!form.timeIn || !form.timeOut) return form;
+
+    const masuk = new Date(form.timeIn);
+    const keluar = new Date(form.timeOut);
+    const diffMs = keluar - masuk;
+
+    if (diffMs < 0) {
+      alert("Jam keluar tidak boleh lebih awal dari jam masuk.");
+      return form;
+    }
+
+    const hours = Math.ceil(diffMs / (1000 * 60 * 60)); 
+    form.duration = hours + " jam";
+
+    
+    form.fee = form.type === "Motor" ? 2000 * hours : 3000 * hours;
+
+    return form;
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!form.title || !form.author || !form.year || !form.category) {
-      alert("Semua field wajib diisi.");
-      return;
+    let newForm = { ...form };
+
+    
+    if (form.status === "Keluar") {
+      newForm = calculateParking(newForm);
     }
 
-    // CREATE
     if (form.id === null) {
-      const newBook = {
-        ...form,
-        id: Date.now(), // id unik sederhana
-      };
-      setBooks((prev) => [newBook, ...prev]);
+      
+      newForm.id = Date.now();
+      setData([newForm, ...data]);
     } else {
-      // UPDATE
-      setBooks((prev) =>
-        prev.map((b) => (b.id === form.id ? { ...form } : b))
-      );
+      
+      setData(data.map((item) => (item.id === form.id ? newForm : item)));
     }
 
     setForm(emptyForm);
   };
 
-  const handleEdit = (book) => {
-    setForm(book);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const handleEdit = (item) => setForm(item);
 
-  const handleDelete = (id) => {
-    const ok = confirm("Yakin ingin menghapus buku ini?");
-    if (!ok) return;
+  const handleDelete = (id) =>
+    setData(data.filter((item) => item.id !== id));
 
-    setBooks((prev) => prev.filter((b) => b.id !== id));
-  };
-
-  const handleCancel = () => setForm(emptyForm);
-
-  const filteredBooks = books.filter((b) => {
-    const q = search.toLowerCase();
-    return (
-      b.title.toLowerCase().includes(q) ||
-      b.author.toLowerCase().includes(q) ||
-      b.category.toLowerCase().includes(q)
-    );
-  });
+  const filtered = data.filter((item) =>
+    item.plate.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="container">
-      <h1>Aplikasi Manajemen Buku</h1>
-      <p className="subtitle">
-        Contoh project CRUD dengan React + localStorage untuk Ujian Praktikum
-        Pemrograman Web.
-      </p>
+      <h1>Manajemen Parkir Kendaraan</h1>
+      <p>Aflah Zain_50423065</p>
 
-      {/* FORM */}
       <div className="card">
-        <h2>{form.id === null ? "Tambah Buku Baru" : "Edit Buku"}</h2>
+        <h2>{form.id ? "Edit Data Parkir" : "Tambah Kendaraan Masuk"}</h2>
+
         <form onSubmit={handleSubmit} className="form">
-          <div className="form-row">
-            <div className="form-group">
-              <label>Judul Buku</label>
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                placeholder="Misal: Pemrograman Web Dasar"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Penulis</label>
-              <input
-                type="text"
-                name="author"
-                value={form.author}
-                onChange={handleChange}
-                placeholder="Nama Penulis"
-              />
-            </div>
+          <div className="form-group">
+            <label>Plat Nomor</label>
+            <input
+              name="plate"
+              value={form.plate}
+              onChange={handleChange}
+              placeholder="Contoh: B 1234 CD"
+            />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Tahun Terbit</label>
-              <input
-                type="number"
-                name="year"
-                value={form.year}
-                onChange={handleChange}
-                placeholder="2025"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Kategori</label>
-              <input
-                type="text"
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                placeholder="Pemrograman, Novel, dll"
-              />
-            </div>
+          <div className="form-group">
+            <label>Nama Pemilik</label>
+            <input
+              name="owner"
+              value={form.owner}
+              onChange={handleChange}
+            />
           </div>
 
-          <div className="form-actions">
-            <button type="submit">
-              {form.id === null ? "Simpan Buku" : "Update Buku"}
-            </button>
-            {form.id !== null && (
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="btn-secondary"
-              >
-                Batal
-              </button>
-            )}
+          <div className="form-group">
+            <label>Jenis Kendaraan</label>
+            <select name="type" value={form.type} onChange={handleChange}>
+              <option>Motor</option>
+              <option>Mobil</option>
+            </select>
           </div>
+
+          <div className="form-group">
+            <label>Jam Masuk</label>
+            <input
+              type="datetime-local"
+              name="timeIn"
+              value={form.timeIn}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Status</label>
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+            >
+              <option>Masuk</option>
+              <option>Keluar</option>
+            </select>
+          </div>
+
+          {form.status === "Keluar" && (
+            <div className="form-group">
+              <label>Jam Keluar</label>
+              <input
+                type="datetime-local"
+                name="timeOut"
+                value={form.timeOut}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+
+          <button type="submit">
+            {form.id ? "Update" : "Simpan"}
+          </button>
         </form>
       </div>
 
-      {/* SEARCH */}
       <div className="card">
-        <div className="search-row">
-          <h2>Daftar Buku</h2>
-          <input
-            type="text"
-            placeholder="Cari judul / penulis / kategori..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <h2>Daftar Kendaraan Parkir</h2>
 
-        {filteredBooks.length === 0 ? (
-          <p className="empty">Belum ada data buku.</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Judul</th>
-                <th>Penulis</th>
-                <th>Tahun</th>
-                <th>Kategori</th>
-                <th>Aksi</th>
+        <input
+          placeholder="Cari plat nomor..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <table>
+          <thead>
+            <tr>
+              <th>Plat</th>
+              <th>Pemilik</th>
+              <th>Jenis</th>
+              <th>Masuk</th>
+              <th>Status</th>
+              <th>Keluar</th>
+              <th>Durasi</th>
+              <th>Biaya</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filtered.map((item) => (
+              <tr key={item.id}>
+                <td>{item.plate}</td>
+                <td>{item.owner}</td>
+                <td>{item.type}</td>
+                <td>{item.timeIn}</td>
+                <td>{item.status}</td>
+                <td>{item.timeOut || "-"}</td>
+                <td>{item.duration || "-"}</td>
+                <td>
+                  {item.fee ? "Rp" + item.fee.toLocaleString() : "-"}
+                </td>
+
+                <td>
+                  <button onClick={() => handleEdit(item)}>Edit</button>{" "}
+                  <button onClick={() => handleDelete(item.id)}>Hapus</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredBooks.map((book, index) => (
-                <tr key={book.id}>
-                  <td>{index + 1}</td>
-                  <td>{book.title}</td>
-                  <td>{book.author}</td>
-                  <td>{book.year}</td>
-                  <td>{book.category}</td>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(book)}
-                      className="btn-link"
-                    >
-                      Edit
-                    </button>
-                    {" | "}
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(book.id)}
-                      className="btn-link danger"
-                    >
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <footer>
-        <small>
-          Data disimpan di <code>localStorage</code> browser. Jika ganti
-          browser/clear storage, data akan hilang.
-        </small>
-      </footer>
+      <p className="footer">Data tersimpan di localStorage</p>
     </div>
   );
 }
