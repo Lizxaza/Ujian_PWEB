@@ -1,16 +1,46 @@
-# React + Vite
+# Aplikasi Manajemen Parkir Kampus
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Project Ujian Praktikum Pemrograman Web (PTA 2025/2026).  
+Aplikasi ini digunakan untuk mengelola data parkir kendaraan di area kampus.
 
-Currently, two official plugins are available:
+## Teknologi yang Digunakan
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React (Vite)
+- HTML, CSS, JavaScript
+- Browser localStorage (Web Storage API)
 
-## React Compiler
+## Fitur
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Tambah data kendaraan masuk (Create)
+- Tampilkan daftar kendaraan parkir (Read)
+- Edit data kendaraan (Update)
+- Hapus data kendaraan (Delete)
+- Pencarian berdasarkan plat nomor
+- Perhitungan otomatis:
+  - Durasi parkir (jam)
+  - Biaya parkir:
+    - Motor: Rp 2.000 / jam
+    - Mobil: Rp 3.000 / jam
 
-## Expanding the ESLint configuration
+## Struktur Data
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Setiap data kendaraan memiliki field:
+
+- `id`
+- `plate`
+- `owner`
+- `type` ("Motor" / "Mobil")
+- `timeIn`
+- `timeOut`
+- `status` ("Masuk" / "Keluar")
+- `duration`
+- `fee`
+
+## Cara Menjalankan
+
+1. Clone repository ini
+2. Jalankan perintah:
+
+   ```bash
+   npm install
+   npm run dev
