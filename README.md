@@ -1,4 +1,4 @@
-# Aplikasi Manajemen Parkir Kampus
+# Aplikasi Manajemen Parkir 
 
 Project Ujian Praktikum Pemrograman Web (PTA 2025/2026).  
 Aplikasi ini digunakan untuk mengelola data parkir kendaraan di area kampus.
